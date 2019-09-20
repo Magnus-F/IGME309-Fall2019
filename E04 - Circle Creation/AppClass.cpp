@@ -4,7 +4,9 @@ void Application::InitVariables(void)
 	//Make MyMesh object
 	m_pMesh = new MyMesh();
 	//Generate a circle
-	m_pMesh->GenerateCircle(2.0f, 5, C_RED);
+	float randRadius = rand() % 20 + 2;
+	int randTriGenerator = rand() % 360 + 3;
+	m_pMesh->GenerateCircle(randRadius, randTriGenerator, C_RED);
 }
 void Application::Update(void)
 {

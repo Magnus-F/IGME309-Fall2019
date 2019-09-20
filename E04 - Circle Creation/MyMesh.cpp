@@ -5,17 +5,38 @@ void MyMesh::GenerateCircle(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 	Init();
 
 	if (a_fRadius < 0.01f)
+	{
 		a_fRadius = 0.01f;
+	}
 
-	if (a_nSubdivisions < 3)
+	if (a_nSubdivisions < 3) {
 		a_nSubdivisions = 3;
-	if (a_nSubdivisions > 360)
+	}
+	else if (a_nSubdivisions > 360) {
 		a_nSubdivisions = 360;
-
-	/*
-		Calculate a_nSubdivisions number of points around a center point in a radial manner
-		then call the AddTri function to generate a_nSubdivision number of faces
-	*/
+	}
+	//start with the base point (vector made with center (0,0,0) and fRadius)
+	vector3 base = vector3(a_fRadius, 0, 0);
+	vector3 next; //would help during for loop later
+	//making everything a float below because otherwise it will round to the nearest integer and cause peices in the generated image to be missing
+	float degreeInterval = 360.0f / (float)a_nSubdivisions; //this gets angle that all triangles will have at center
+	vector3 center = vector3(0, 0, 0); //not necessary but good for visualization
+	//from that we need to account for the other vectors using the angle of the pretend triangle (made with nSubdivisions/360)
+	//for every new point it would be basically base * (tangent rule (?) with angle * i)
+	for (int i = 0; i < a_nSubdivisions+1; i++)
+	{
+		//calculate necessary numbers
+		next = base;
+		float radianCalc = (degreeInterval* 3.14159265359*i) / 180.0f;
+		float x = cos(radianCalc) * a_fRadius;
+		float y = sin(radianCalc) * a_fRadius;
+		//flop em all into next
+		next = vector3(x, y, 0);
+		//draw the triangle
+		AddTri(center, base, next);
+		//forget previous base
+		base = next;
+	}
 
 	// Adding information about color
 	CompleteMesh(a_v3Color);
@@ -175,7 +196,7 @@ void MyMesh::AddTri(vector3 a_vBottomLeft, vector3 a_vBottomRight, vector3 a_vTo
 {
 	//C
 	//| \
-		//A--B
+	//A--B
 //This will make the triangle A->B->C 
 	AddVertexPosition(a_vBottomLeft);
 	AddVertexPosition(a_vBottomRight);
