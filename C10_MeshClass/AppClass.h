@@ -309,6 +309,9 @@ private:
 	Application& operator=(Application const& input);
 
 #pragma endregion
+#pragma region space invader
+	void drawSpaceInvader();
+#pragma endregion
 };
 
 #endif //__APPLICATIONCLASS_H_
