@@ -53,25 +53,37 @@ void Application::Display(void)
 
 	//calculate the current position
 	vector3 v3CurrentPos;
-	
-
-
-
 
 	//your code goes here
-	v3CurrentPos = vector3(0.0f, 0.0f, 0.0f); 
+	//initialize rest of factors here, also define time between and percentage of time
+	vector3 beginningVector;
+	vector3 stopVector;
+	float timeBetween = 3.0f;
+	float percentageOfTime = MapValue(fTimer, 0.0f, timeBetween, 0.0f, 1.0f);
+	matrix4 m4Model;
+	static uint currentStop = 0;
+	// v3CurrentPos = vector3(0.0f, 0.0f, 0.0f);
 
-	for (size_t i = 0; i < m_stopsList.size(); i++)
+	//get lerp
+	beginningVector = m_stopsList[currentStop];
+	stopVector = m_stopsList[(currentStop+1) % m_stopsList.size()];
+	v3CurrentPos = glm::lerp(v3CurrentPos, stopVector, percentageOfTime);
+
+	//translate
+	m4Model = glm::translate(v3CurrentPos);
+	m_pModel->SetModelMatrix(m4Model);
+
+	//if route is done
+	if (percentageOfTime >= 1.0f)
 	{
-		//lerp to second place in stops list, then make current position equal that spot and go at it again
-		//but first we woudl need to convert to the glm::tvec3 in order to get this to work
-		//hopefully the labbie will be able to help me
-		//and hopefully I won't get too many points taken off for leaving off half of e05 since I thought this was the part two of that
+		//set current stop to next stop
+		currentStop++;
+		fTimer = m_pSystem->GetDeltaTime(uClock); //this appearently resets timer
+		//if its out boundaries, reset it
+		currentStop %= m_stopsList.size();
 	}
 
-	
-	matrix4 m4Model = glm::translate(v3CurrentPos);
-	m_pModel->SetModelMatrix(m4Model);
+	//currentStop++;
 
 	m_pMeshMngr->Print("\nTimer: ");//Add a line on top
 	m_pMeshMngr->PrintLine(std::to_string(fTimer), C_YELLOW);
