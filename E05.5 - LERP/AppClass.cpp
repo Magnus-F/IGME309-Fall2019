@@ -2,7 +2,7 @@
 void Application::InitVariables(void)
 {
 	//Change this to your name and email
-	m_sProgrammer = "Alberto Bobadilla - labigm@rit.edu";
+	m_sProgrammer = "Myles Weider - mjw7119@g.rit.edu";
 
 	//Set the position and target of the camera
 	m_pCameraMngr->SetPositionTargetAndUpward(vector3(5.0f,3.0f,15.0f), ZERO_V3, AXIS_Y);
@@ -59,10 +59,15 @@ void Application::Display(void)
 
 
 	//your code goes here
-	v3CurrentPos = vector3(0.0f, 0.0f, 0.0f);
-	//-------------------
-	
+	v3CurrentPos = vector3(0.0f, 0.0f, 0.0f); 
 
+	for (size_t i = 0; i < m_stopsList.size(); i++)
+	{
+		//lerp to second place in stops list, then make current position equal that spot and go at it again
+		//but first we woudl need to convert to the glm::tvec3 in order to get this to work
+		//hopefully the labbie will be able to help me
+		//and hopefully I won't get too many points taken off for leaving off half of e05 since I thought this was the part two of that
+	}
 
 	
 	matrix4 m4Model = glm::translate(v3CurrentPos);
