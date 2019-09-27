@@ -60,17 +60,16 @@ void Application::Display(void)
 	vector3 stopVector;
 	float timeBetween = 3.0f;
 	float percentageOfTime = MapValue(fTimer, 0.0f, timeBetween, 0.0f, 1.0f);
-	matrix4 m4Model;
 	static uint currentStop = 0;
 	// v3CurrentPos = vector3(0.0f, 0.0f, 0.0f);
 
 	//get lerp
 	beginningVector = m_stopsList[currentStop];
 	stopVector = m_stopsList[(currentStop+1) % m_stopsList.size()];
-	v3CurrentPos = glm::lerp(v3CurrentPos, stopVector, percentageOfTime);
+	v3CurrentPos = glm::lerp(beginningVector, stopVector, percentageOfTime);
 
 	//translate
-	m4Model = glm::translate(v3CurrentPos);
+	matrix4 m4Model = glm::translate(v3CurrentPos);
 	m_pModel->SetModelMatrix(m4Model);
 
 	//if route is done
