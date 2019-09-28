@@ -414,30 +414,40 @@ void Application::ProcessKeyboard(void)
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::E))
 		m_pCameraMngr->MoveVertical(fSpeed);
 #pragma endregion
+	//quats are temporary quaternions
+	//temps are great since they allow for less possiblity of errors, since you aren't changing the actual quaternion and are just working with less numbers
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::X))
 	{
+		quaternion quatX;
 		if (fMultiplier)
-			m_v3Rotation.x -= 1.0f;
+			quatX = glm::angleAxis(glm::radians(1.0f), vector3(-1.0f, 0.0f, 0.0f));
 		else
-			m_v3Rotation.x += 1.0f;
+			quatX = glm::angleAxis(glm::radians(1.0f), vector3(1.0f, 0.0f, 0.0f));
+		m_qOrientation = m_qOrientation * quatX;
 	}
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Y))
 	{
+		quaternion quatY;
 		if (fMultiplier)
-			m_v3Rotation.y -= 1.0f;
+			quatY = glm::angleAxis(glm::radians(1.0f), vector3(0.0f, -1.0f, 0.0f));
 		else
-			m_v3Rotation.y += 1.0f;
+			quatY = glm::angleAxis(glm::radians(1.0f), vector3(0.0f, 1.0f, 0.0f));
+		m_qOrientation = m_qOrientation * quatY;
 	}
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z))
 	{
+		quaternion quatZ;
 		if (fMultiplier)
-			m_v3Rotation.z -= 1.0f;
+			quatZ = glm::angleAxis(glm::radians(1.0f), vector3(0.0f, 0.0f, -1.0f));
 		else
-			m_v3Rotation.z += 1.0f;
+			quatZ = glm::angleAxis(glm::radians(1.0f), vector3(0.0f, 0.0f, 1.0f));
+		m_qOrientation = m_qOrientation * quatZ;
 	}
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::R))
 	{
 		m_v3Rotation = vector3(0.0f);
+		//identity quat reduces it back to zero, essentially resetting the model
+		m_qOrientation = IDENTITY_QUAT;
 	}
 }
 //Joystick

@@ -25,9 +25,11 @@ void Application::Display(void)
 	matrix4 m4View = m_pCameraMngr->GetViewMatrix();
 	matrix4 m4Projection = m_pCameraMngr->GetProjectionMatrix();
 
-	m_m4Model = glm::rotate(IDENTITY_M4, glm::radians(m_v3Rotation.x), vector3(1.0f, 0.0f, 0.0f));
-	m_m4Model = glm::rotate(m_m4Model, glm::radians(m_v3Rotation.y), vector3(0.0f, 1.0f, 0.0f));
-	m_m4Model = glm::rotate(m_m4Model, glm::radians(m_v3Rotation.z), vector3(0.0f, 0.0f, 1.0f));
+	//rotation applied directly to model may cause problems with gimbal lock
+	//since it's only one vertex that's being changed, some bugs in the math having to do with that
+	//quaternion, as far as im aware, makes it so that the object is rotated along not its own internal axis but an outward axis that just gets applied to its rotation
+	//since its not a singular vector doing the rotation, or the rotation is not being directly applied to the model, no gimbal lock happens
+	m_m4Model = glm::toMat4(m_qOrientation);
 	m_pMesh->Render(m4Projection, m4View, ToMatrix4(m_m4Model));
 
 	//m_qOrientation = m_qOrientation * glm::angleAxis(glm::radians(1.0f), vector3(1.0f));

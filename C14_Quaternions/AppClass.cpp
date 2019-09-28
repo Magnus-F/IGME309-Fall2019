@@ -38,7 +38,7 @@ void Application::Update(void)
 	}
 #pragma endregion
 #pragma region translate vector orientation into a matrix
-	if (false)
+	if (true)
 	{
 		matrix4 m4OrientX = glm::rotate(IDENTITY_M4, glm::radians(m_v3Orientation.x), vector3(1.0f, 0.0f, 0.0f));
 		matrix4 m4OrientY = glm::rotate(IDENTITY_M4, glm::radians(m_v3Orientation.y), vector3(0.0f, 1.0f, 0.0f));
@@ -49,7 +49,7 @@ void Application::Update(void)
 	}
 #pragma endregion
 #pragma region orientation using quaternions
-	if (true)
+	if (false)
 	{
 		m_m4Steve = glm::toMat4(m_qOrientation);
 	}
