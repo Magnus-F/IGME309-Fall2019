@@ -173,6 +173,49 @@ void MyMesh::AddQuad(vector3 a_vBottomLeft, vector3 a_vBottomRight, vector3 a_vT
 	AddVertexPosition(a_vBottomRight);
 	AddVertexPosition(a_vTopRight);
 }
+void MyMesh::GenerateCircle(float a_fRadius, int a_nSubdivisions, vector3 a_v3Color)
+{
+	Release();
+	Init();
+
+	if (a_fRadius < 0.01f)
+	{
+		a_fRadius = 0.01f;
+	}
+
+	if (a_nSubdivisions < 3) {
+		a_nSubdivisions = 3;
+	}
+	else if (a_nSubdivisions > 360) {
+		a_nSubdivisions = 360;
+	}
+	//start with the base point (vector made with center (0,0,0) and fRadius)
+	vector3 base = vector3(a_fRadius, 0, 0);
+	vector3 next; //would help during for loop later
+	//making everything a float below because otherwise it will round to the nearest integer and cause peices in the generated image to be missing
+	float degreeInterval = 360.0f / (float)a_nSubdivisions; //this gets angle that all triangles will have at center
+	vector3 center = vector3(0, 0, 0); //not necessary but good for visualization
+	//from that we need to account for the other vectors using the angle of the pretend triangle (made with nSubdivisions/360)
+	//for every new point it would be basically base * (tangent rule (?) with angle * i)
+	for (int i = 0; i < a_nSubdivisions + 1; i++)
+	{
+		//calculate necessary numbers
+		next = base;
+		float radianCalc = (degreeInterval * 3.14159265359 * i) / 180.0f;
+		float x = cos(radianCalc) * a_fRadius;
+		float y = sin(radianCalc) * a_fRadius;
+		//flop em all into next
+		next = vector3(x, y, 0);
+		//draw the triangle
+		AddTri(center, base, next);
+		//forget previous base
+		base = next;
+	}
+
+	// Adding information about color
+	CompleteMesh(a_v3Color);
+	CompileOpenGL3X();
+}
 void MyMesh::GenerateCube(float a_fSize, vector3 a_v3Color)
 {
 	if (a_fSize < 0.01f)
@@ -276,7 +319,32 @@ void MyMesh::GenerateCone(float a_fRadius, float a_fHeight, int a_nSubdivisions,
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
+	//start with the base point (vector made with center (0,0,0) and fRadius)
+	vector3 base = vector3(a_fRadius, 0, 0);
+	vector3 top = vector3(0, a_fHeight, 0);
+	vector3 next; //would help during for loop later
+	//making everything a float below because otherwise it will round to the nearest integer and cause peices in the generated image to be missing
+	float degreeInterval = 360.0f / (float)a_nSubdivisions; //this gets angle that all triangles will have at center
+	vector3 center = vector3(0, 0, 0); //not necessary but good for visualization
+	//from that we need to account for the other vectors using the angle of the pretend triangle (made with nSubdivisions/360)
+	//for every new point it would be basically base * (tangent rule (?) with angle * i)
+	//remember, we're dealing with the x and z axis, rather than the x and y like before
+	//also we woudl need to add two triangles, one for the base circle and the other for the uprooting triangle
+	for (int i = 0; i < a_nSubdivisions + 1; i++)
+	{
+		//calculate necessary numbers
+		next = base;
+		float radianCalc = (degreeInterval * 3.14159265359 * i) / 180.0f;
+		float x = cos(radianCalc) * a_fRadius;
+		float z = sin(radianCalc) * a_fRadius;
+		//flop em all into next
+		next = vector3(x, 0, z);
+		//draw the triangle
+		AddTri(base, next, center); //circle
+		AddTri(base, top, next); //top bit
+		//forget previous base
+		base = next;
+	}
 	// -------------------------------
 
 	// Adding information about color
@@ -300,7 +368,45 @@ void MyMesh::GenerateCylinder(float a_fRadius, float a_fHeight, int a_nSubdivisi
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
+	//with this one we'll need two circles generated as well as a quad that stretches between the two
+
+	//keep in mind
+	//C--D
+	//|  |
+	//A--B
+	//This will make the triangle A->B->C and then the triangle C->B->D
+
+	//start with the base point (vector made with center (0,0,0) and fRadius)
+	vector3 baseBottom = vector3(a_fRadius, 0, 0);
+	vector3 baseTop = vector3(a_fRadius, a_fHeight, 0);
+	vector3 nextBottom; //would help during for loop later
+	vector3 nextTop; //would help during for loop later
+	//making everything a float below because otherwise it will round to the nearest integer and cause peices in the generated image to be missing
+	float degreeInterval = 360.0f / (float)a_nSubdivisions; //this gets angle that all triangles will have at center
+	vector3 centerBottom = vector3(0, 0, 0); //not necessary but good for visualization
+	vector3 centerTop = vector3(0, a_fHeight, 0); //not necessary but good for visualization
+	//from that we need to account for the other vectors using the angle of the pretend triangle (made with nSubdivisions/360)
+	//for every new point it would be basically base * (tangent rule (?) with angle * i)
+	//remember, we're dealing with the x and z axis, rather than the x and y like before
+	//also we woudl need to add two triangles, one for the base circle and the other for the uprooting triangle
+	for (int i = 0; i < a_nSubdivisions + 1; i++)
+	{
+		//calculate necessary numbers
+		nextBottom = baseBottom;
+		float radianCalc = (degreeInterval * 3.14159265359 * i) / 180.0f;
+		float z = cos(radianCalc) * a_fRadius;
+		float y = sin(radianCalc) * a_fRadius;
+		//flop em all into next
+		nextBottom = vector3(z, 0, y);
+		nextTop = vector3(z, a_fHeight, y);
+		//draw the triangle
+		AddTri(baseBottom, nextBottom, centerBottom); //bottom circle
+		AddTri(nextTop, baseTop, centerTop); //top circle
+		AddQuad(nextBottom, baseBottom, nextTop, baseTop);
+		//forget previous base
+		baseBottom = nextBottom;
+		baseTop = nextTop;
+	}
 	// -------------------------------
 
 	// Adding information about color
@@ -330,7 +436,67 @@ void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fH
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fOuterRadius * 2.0f, a_v3Color);
+	//with this one we'll need four points (base, next, innerBase, innerNext) for both sides, and two rows of quads to stretch between the two
+
+	//keep in mind
+	//C--D
+	//|  |
+	//A--B
+	//This will make the triangle A->B->C and then the triangle C->B->D
+
+	//start with the various points used
+	//outer
+	vector3 baseBottomO = vector3(a_fOuterRadius, 0, 0);
+	vector3 baseTopO = vector3(a_fOuterRadius, a_fHeight, 0);
+	vector3 nextBottomO; //would help during for loop later
+	vector3 nextTopO; //would help during for loop later
+
+	//inner
+	vector3 baseBottomI = vector3(a_fInnerRadius, 0, 0);
+	vector3 baseTopI = vector3(a_fInnerRadius, a_fHeight, 0);
+	vector3 nextBottomI; //would help during for loop later
+	vector3 nextTopI; //would help during for loop later
+
+
+	//making everything a float below because otherwise it will round to the nearest integer and cause peices in the generated image to be missing
+	float degreeInterval = 360.0f / (float)a_nSubdivisions; //this gets angle that all triangles will have at center
+	//from that we need to account for the other vectors using the angle of the pretend triangle (made with nSubdivisions/360)
+	//for every new point it would be basically base * (tangent rule (?) with angle * i)
+	//remember, we're dealing with the x and z axis, rather than the x and y like before
+	//also we woudl need to add two triangles, one for the base circle and the other for the uprooting triangle
+	for (int i = 0; i < a_nSubdivisions + 1; i++)
+	{
+		//calculate NUMBERS
+		nextBottomO = baseBottomO;
+		nextBottomI = baseBottomI;
+		float radianCalc = (degreeInterval * 3.14159265359 * i) / 180.0f;
+		//calculate outeer numbers
+		float x = cos(radianCalc) * a_fOuterRadius;
+		float z = sin(radianCalc) * a_fOuterRadius;
+		//flop em all into next
+		nextBottomO = vector3(x, 0, z);
+		nextTopO = vector3(x, a_fHeight, z);
+		//calculate inner numbers
+		x = cos(radianCalc) * a_fInnerRadius;
+		z = sin(radianCalc) * a_fInnerRadius;
+		//flop em all into next
+		nextBottomI = vector3(x, 0, z);
+		nextTopI = vector3(x, a_fHeight, z);
+
+
+		//draw the quads
+		//AddTri(baseBottomO, nextBottomO, centerBottom); //bottom circle
+		//AddTri(nextTopO, baseTopO, centerTop); //top circle
+		AddQuad(nextBottomI, baseBottomI, nextBottomO, baseBottomO); //top donut
+		AddQuad(baseTopI, nextTopI, baseTopO, nextTopO); //bottom donut
+		AddQuad(nextBottomO, baseBottomO, nextTopO, baseTopO); //outer quad
+		AddQuad(baseBottomI, nextBottomI, baseTopI, nextTopI); //inner quad
+		//forget previous base
+		baseBottomO = nextBottomO;
+		baseTopO = nextTopO;
+		baseBottomI = nextBottomI;
+		baseTopI = nextTopI;
+	}
 	// -------------------------------
 
 	// Adding information about color
@@ -387,7 +553,74 @@ void MyMesh::GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
+	//keep in mind:
+	//radius is referring to the radius at the sphere's thickest
+	//subdivisions (in parameters) are referring to the verticle subdivisions
+	int horizontalSubdivisions = a_nSubdivisions * 2;
+	int infoMatrix[50][3];
+
+	/*
+	//with this one we'll need four points (base, next, innerBase, innerNext) for both sides, and two rows of quads to stretch between the two
+
+	//keep in mind
+	//C--D
+	//|  |
+	//A--B
+	//This will make the triangle A->B->C and then the triangle C->B->D
+
+	//start with the various points used
+	//outer
+	vector3 baseBottomO = vector3(a_fRadius, 0, 0);
+	vector3 baseTopO = vector3(a_fRadius, 0, 0);
+	vector3 nextBottomO; //would help during for loop later
+	vector3 nextTopO; //would help during for loop later
+
+	//inner
+	vector3 baseBottomI = vector3(a_fRadius, 0, 0);
+	vector3 baseTopI = vector3(a_fRadius, 0, 0);
+	vector3 nextBottomI; //would help during for loop later
+	vector3 nextTopI; //would help during for loop later
+
+
+	//making everything a float below because otherwise it will round to the nearest integer and cause peices in the generated image to be missing
+	float degreeInterval = 360.0f / (float)a_nSubdivisions; //this gets angle that all triangles will have at center
+	//from that we need to account for the other vectors using the angle of the pretend triangle (made with nSubdivisions/360)
+	//for every new point it would be basically base * (tangent rule (?) with angle * i)
+	//remember, we're dealing with the x and z axis, rather than the x and y like before
+	//also we woudl need to add two triangles, one for the base circle and the other for the uprooting triangle
+	for (int i = 0; i < a_nSubdivisions + 1; i++)
+	{
+		//calculate NUMBERS
+		nextBottomO = baseBottomO;
+		nextBottomI = baseBottomI;
+		float radianCalc = (degreeInterval * 3.14159265359 * i) / 180.0f;
+		//calculate outeer numbers
+		float x = cos(radianCalc) * a_fRadius;
+		float z = sin(radianCalc) * a_fRadius;
+		//flop em all into next
+		nextBottomO = vector3(x, 0, z);
+		nextTopO = vector3(x, 0, z);
+		//calculate inner numbers
+		x = cos(radianCalc) * a_fRadius;
+		z = sin(radianCalc) * a_fRadius;
+		//flop em all into next
+		nextBottomI = vector3(x, 0, z);
+		nextTopI = vector3(x, 0, z);
+
+
+		//draw the quads
+		//AddTri(baseBottomO, nextBottomO, centerBottom); //bottom circle
+		//AddTri(nextTopO, baseTopO, centerTop); //top circle
+		AddQuad(nextBottomI, baseBottomI, nextBottomO, baseBottomO); //top donut
+		AddQuad(baseTopI, nextTopI, baseTopO, nextTopO); //bottom donut
+		//forget previous base
+		baseBottomO = nextBottomO;
+		baseTopO = nextTopO;
+		baseBottomI = nextBottomI;
+		baseTopI = nextTopI;
+	}
+	*/
+
 	// -------------------------------
 
 	// Adding information about color
