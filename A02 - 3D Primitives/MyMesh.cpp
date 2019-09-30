@@ -553,73 +553,97 @@ void MyMesh::GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 	Init();
 
 	// Replace this with your code
-	//keep in mind:
-	//radius is referring to the radius at the sphere's thickest
-	//subdivisions (in parameters) are referring to the verticle subdivisions
-	int horizontalSubdivisions = a_nSubdivisions * 2;
-	int infoMatrix[50][3];
-
-	/*
-	//with this one we'll need four points (base, next, innerBase, innerNext) for both sides, and two rows of quads to stretch between the two
-
-	//keep in mind
-	//C--D
-	//|  |
-	//A--B
-	//This will make the triangle A->B->C and then the triangle C->B->D
-
-	//start with the various points used
-	//outer
-	vector3 baseBottomO = vector3(a_fRadius, 0, 0);
-	vector3 baseTopO = vector3(a_fRadius, 0, 0);
-	vector3 nextBottomO; //would help during for loop later
-	vector3 nextTopO; //would help during for loop later
-
-	//inner
-	vector3 baseBottomI = vector3(a_fRadius, 0, 0);
-	vector3 baseTopI = vector3(a_fRadius, 0, 0);
-	vector3 nextBottomI; //would help during for loop later
-	vector3 nextTopI; //would help during for loop later
-
-
+	//with this one we'll need two circles generated as well as a quad that stretches between the two
+	float horizontalSub = a_nSubdivisions * 2;
+	float verticalSubInterval = a_fRadius / a_nSubdivisions;
+	float height = 0.1f;
+	float prevHeight = 0;
+	bool invert = false;
+	float radius = a_fRadius;
+	float nextRadius;
+	float addive = a_fRadius / 5;
+	//start with the base point (vector made with center (0,0,0) and fRadius)
+	vector3 baseBottom = vector3(a_fRadius, 0, 0);
+	vector3 baseTop = vector3(a_fRadius, height, 0);
+	vector3 nextBottom; //would help during for loop later
+	vector3 nextTop; //would help during for loop later
 	//making everything a float below because otherwise it will round to the nearest integer and cause peices in the generated image to be missing
-	float degreeInterval = 360.0f / (float)a_nSubdivisions; //this gets angle that all triangles will have at center
+	float degreeInterval = 360.0f / (float)horizontalSub; //this gets angle that all triangles will have at center
+	vector3 centerBottom = vector3(0, 0, 0); //not necessary but good for visualization
+	vector3 centerTop = vector3(0, height, 0); //not necessary but good for visualization
 	//from that we need to account for the other vectors using the angle of the pretend triangle (made with nSubdivisions/360)
 	//for every new point it would be basically base * (tangent rule (?) with angle * i)
 	//remember, we're dealing with the x and z axis, rather than the x and y like before
 	//also we woudl need to add two triangles, one for the base circle and the other for the uprooting triangle
-	for (int i = 0; i < a_nSubdivisions + 1; i++)
+	for (int w = 0; w < 2; w++)
 	{
-		//calculate NUMBERS
-		nextBottomO = baseBottomO;
-		nextBottomI = baseBottomI;
-		float radianCalc = (degreeInterval * 3.14159265359 * i) / 180.0f;
-		//calculate outeer numbers
-		float x = cos(radianCalc) * a_fRadius;
-		float z = sin(radianCalc) * a_fRadius;
-		//flop em all into next
-		nextBottomO = vector3(x, 0, z);
-		nextTopO = vector3(x, 0, z);
-		//calculate inner numbers
-		x = cos(radianCalc) * a_fRadius;
-		z = sin(radianCalc) * a_fRadius;
-		//flop em all into next
-		nextBottomI = vector3(x, 0, z);
-		nextTopI = vector3(x, 0, z);
-
-
-		//draw the quads
-		//AddTri(baseBottomO, nextBottomO, centerBottom); //bottom circle
-		//AddTri(nextTopO, baseTopO, centerTop); //top circle
-		AddQuad(nextBottomI, baseBottomI, nextBottomO, baseBottomO); //top donut
-		AddQuad(baseTopI, nextTopI, baseTopO, nextTopO); //bottom donut
-		//forget previous base
-		baseBottomO = nextBottomO;
-		baseTopO = nextTopO;
-		baseBottomI = nextBottomI;
-		baseTopI = nextTopI;
+		for (int j = 0; j < horizontalSub; j++)
+		{
+			height = (verticalSubInterval * (j / verticalSubInterval)) / 3.5f;
+			if (invert) {
+				height = height * -1;
+			}
+			nextRadius = radius - (verticalSubInterval * j);
+			if (nextRadius < 0)
+			{
+				nextRadius = 0;
+			}
+			for (int i = 0; i < horizontalSub + 1; i++)
+			{
+				//calculate necessary numbers
+				nextBottom = baseBottom;
+				float radianCalc = (degreeInterval * 3.14159265359 * i) / 180.0f;
+				//calc bottom ring
+				float x = cos(radianCalc) * radius;
+				float z = sin(radianCalc) * radius;
+				nextBottom = vector3(x, prevHeight, z);
+				//calc top ring
+				x = cos(radianCalc) * nextRadius;
+				z = sin(radianCalc) * nextRadius;
+				nextTop = vector3(x, height, z);
+				//draw quads
+				if (invert)
+				{	
+					//keep in mind
+					//C--D
+					//|  |
+					//A--B
+					//This will make the triangle A->B->C and then the triangle C->B->D
+					//AddQuad(baseTop, nextTop, baseBottom, nextBottom);
+					AddQuad(baseBottom, nextBottom, baseTop, nextTop);
+					std::cout << "inverted" << std::endl;
+					std::cout << baseBottom.x << baseBottom.y << baseBottom.z << std::endl;
+					std::cout << baseTop.x << baseTop.y << baseTop.z << std::endl;
+					std::cout << nextBottom.x << nextBottom.y << nextBottom.z << std::endl;
+					std::cout << nextTop.x << nextTop.y << nextTop.z << std::endl;
+				}
+				else
+				{
+					std::cout << "not inverted" << std::endl;
+					std::cout << baseBottom.x << baseBottom.y << baseBottom.z << std::endl;
+					std::cout << baseTop.x << baseTop.y << baseTop.z << std::endl;
+					std::cout << nextBottom.x << nextBottom.y << nextBottom.z << std::endl;
+					std::cout << nextTop.x << nextTop.y << nextTop.z << std::endl;
+					AddQuad(nextBottom, baseBottom, nextTop, baseTop);
+				}
+				//AddQuad(nextBottom, baseBottom, nextTop, baseTop);
+				//
+				//forget previous base
+				baseBottom = nextBottom;
+				baseTop = nextTop;
+			}
+			//prep to move on to next pair of rings
+			baseBottom = baseTop;
+			nextBottom = nextTop;
+			prevHeight = height;
+			radius = nextRadius;
+		}
+		//reset everything for next half
+		invert = true;
+		radius = a_fRadius;
+		prevHeight = 0;
 	}
-	*/
+	
 
 	// -------------------------------
 
