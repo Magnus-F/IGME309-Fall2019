@@ -1,5 +1,6 @@
 #include "AppClass.h"
 using namespace Simplex;
+float add = 0;
 void Application::InitVariables(void)
 {
 	//Change this to your name and email
@@ -50,34 +51,38 @@ void Application::Display(void)
 	{
 	default:
 	case 1:
+		add = 0;
 		m_pCamera->ResetCamera();
 		break;
 	case 2:
-		//zooms in image, but can also turn it upside down at the 50x dividens
+		//done
 		m_pCamera->ResetCamera();
-		m_pCamera->SetFOV(100.0f);
+		m_pCamera->SetPerspective(false);
 		break;
 	case 3:
-		//stretches image
+		//done
 		m_pCamera->ResetCamera();
-		m_pCamera->SetResolution(vector2(-25, -30));
+		m_pCamera->SetPosition(vector3(15, 0, 0));
+		m_pCamera->SetUp(vector3(0, 0, 1));
+		m_pCamera->SetFOV(250);
 		break;
 	case 4:
-		//rotates camera??
+		add+=0.1f;
+		//stretches image
 		m_pCamera->ResetCamera();
-		m_pCamera->SetPosition(vector3(0, 0, 5));
-		//m_pCamera->SetPerspective(false);
 		break;
 	case 5:
 		//translates camera
 		m_pCamera->ResetCamera();
-		m_pCamera->SetTarget(vector3(0, 1, 0));
+		//m_pCamera->SetNearFar(vector2(.01f, 1000.0f));
+		m_pCamera->SetPerspective(false);
 		break;
 	case 6:
-		//set near far places the camera further inside image without "zooming in"
+		//done
 		m_pCamera->ResetCamera();
-		m_pCamera->SetNearFar(vector2(10.1f, 1000.0f));
-		m_pCamera->SetFOV(170.0f);
+		m_pCamera->SetNearFar(vector2(.01f, 16.0f));
+		//m_pCamera->SetFOV(120);
+		m_pCamera->SetPosition(vector3(0, 0, -20));
 		break;
 	case 7:
 		//done
