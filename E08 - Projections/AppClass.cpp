@@ -3,7 +3,7 @@ using namespace Simplex;
 void Application::InitVariables(void)
 {
 	//Change this to your name and email
-	m_sProgrammer = "Alberto Bobadilla - labigm@rit.edu";
+	m_sProgrammer = "Myles Weider - mjw7119@rit.edu";
 
 	//Set the position and target of the camera
 	//(I'm at [0,0,10], looking at [0,0,0] and up is the positive Y axis)
@@ -53,22 +53,36 @@ void Application::Display(void)
 		m_pCamera->ResetCamera();
 		break;
 	case 2:
+		//zooms in image, but can also turn it upside down at the 50x dividens
 		m_pCamera->ResetCamera();
+		m_pCamera->SetFOV(100.0f);
 		break;
 	case 3:
+		//stretches image
 		m_pCamera->ResetCamera();
+		m_pCamera->SetResolution(vector2(-25, -30));
 		break;
 	case 4:
+		//rotates camera??
 		m_pCamera->ResetCamera();
+		m_pCamera->SetPosition(vector3(0, 0, 5));
+		//m_pCamera->SetPerspective(false);
 		break;
 	case 5:
+		//translates camera
 		m_pCamera->ResetCamera();
+		m_pCamera->SetTarget(vector3(0, 1, 0));
 		break;
 	case 6:
+		//set near far places the camera further inside image without "zooming in"
 		m_pCamera->ResetCamera();
+		m_pCamera->SetNearFar(vector2(10.1f, 1000.0f));
+		m_pCamera->SetFOV(170.0f);
 		break;
 	case 7:
+		//done
 		m_pCamera->ResetCamera();
+		m_pCamera->SetFOV(150.0f);
 		break;
 	}
 
