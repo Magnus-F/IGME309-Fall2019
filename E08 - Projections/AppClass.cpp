@@ -1,6 +1,5 @@
 #include "AppClass.h"
 using namespace Simplex;
-float add = 0;
 void Application::InitVariables(void)
 {
 	//Change this to your name and email
@@ -51,7 +50,6 @@ void Application::Display(void)
 	{
 	default:
 	case 1:
-		add = 0;
 		m_pCamera->ResetCamera();
 		break;
 	case 2:
@@ -67,21 +65,22 @@ void Application::Display(void)
 		m_pCamera->SetFOV(250);
 		break;
 	case 4:
-		add+=0.1f;
-		//stretches image
+		//done
 		m_pCamera->ResetCamera();
+		m_pCamera->SetTarget(vector3(0, -1, 0));
+		m_pCamera->SetPosition(vector3(0.0f, 0.0f, -15.0f));
 		break;
 	case 5:
-		//translates camera
+		//done
 		m_pCamera->ResetCamera();
-		//m_pCamera->SetNearFar(vector2(.01f, 1000.0f));
-		m_pCamera->SetPerspective(false);
+		m_pCamera->SetTarget(vector3(0, -1, 0));
+		m_pCamera->SetPosition(vector3(0.0f, 0.0f, -15.0f));
+		m_pCamera->SetNearFar(vector2(7.0f, 1000));
 		break;
 	case 6:
 		//done
 		m_pCamera->ResetCamera();
 		m_pCamera->SetNearFar(vector2(.01f, 16.0f));
-		//m_pCamera->SetFOV(120);
 		m_pCamera->SetPosition(vector3(0, 0, -20));
 		break;
 	case 7:
