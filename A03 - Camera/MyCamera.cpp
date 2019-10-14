@@ -17,6 +17,16 @@ void Simplex::MyCamera::SetVerticalPlanes(vector2 a_v2Vertical) { m_v2Vertical =
 matrix4 Simplex::MyCamera::GetProjectionMatrix(void) { return m_m4Projection; }
 matrix4 Simplex::MyCamera::GetViewMatrix(void) { CalculateViewMatrix(); return m_m4View; }
 
+//code for this equation is here: http://www.cplusplus.com/forum/general/243435/
+vector3 Simplex::MyCamera::Normalize(vector3 vec)
+{
+	float magnitude = sqrt(pow(vec.x, 2) + pow(vec.y, 2) + pow(vec.z, 2));
+	vec.x /= magnitude;
+	vec.y /= magnitude;
+	vec.z /= magnitude;
+	return vec;
+}
+
 Simplex::MyCamera::MyCamera()
 {
 	Init(); //Init the object with default values
@@ -153,10 +163,36 @@ void Simplex::MyCamera::CalculateProjectionMatrix(void)
 void MyCamera::MoveForward(float a_fDistance)
 {
 	//The following is just an example and does not take in account the forward vector (AKA view vector)
-	m_v3Position += vector3(0.0f, 0.0f,-a_fDistance);
-	m_v3Target += vector3(0.0f, 0.0f, -a_fDistance);
-	m_v3Above += vector3(0.0f, 0.0f, -a_fDistance);
+	//m_v3Position.z += -a_fDistance;
+	//m_v3Target.z += -a_fDistance;
+	//m_v3Above.z += -a_fDistance;
+	//see if this works
+	//multiply forward vector by vector including afdistance
+	forwardVector += vector3(0.0f, 0.0f, -a_fDistance);
+}
+//for now this is just a copy of the above moveForward. Don't think this will take into account the rotation, but we'll figure that out once the rotation is in
+void MyCamera::MoveVertical(float a_fDistance){
+	m_v3Position.y += -a_fDistance;
+	m_v3Target.y += -a_fDistance;
+	m_v3Above.y += -a_fDistance;
+}
+void MyCamera::MoveSideways(float a_fDistance){
+	//m_v3Position.x += -a_fDistance;
+	//m_v3Target.x += -a_fDistance;
+	//m_v3Above.x += -a_fDistance;
+	//multiply forward vector by vector including afdistance
+	forwardVector += vector3(-a_fDistance, 0.0f, 0.0f);
 }
 
-void MyCamera::MoveVertical(float a_fDistance){}//Needs to be defined
-void MyCamera::MoveSideways(float a_fDistance){}//Needs to be defined
+//attempted to account for a forward vector here, it gets added to all the other move vectors
+void Simplex::MyCamera::forwardVectorProcessing()
+{
+	//normalize the vector
+	//forwardVector = Normalize(forwardVector);
+	//set everything accordingly
+	m_v3Position += forwardVector;
+	m_v3Above += forwardVector;
+	m_v3Target += forwardVector;
+	//reset vector
+	forwardVector = vector3(0, 0, 0);
+}

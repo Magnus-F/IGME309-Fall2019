@@ -390,6 +390,13 @@ void Application::ProcessKeyboard(void)
 		m_pCamera->MoveForward(fSpeed);
 	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
 		m_pCamera->MoveForward(-fSpeed);
+	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+		m_pCamera->MoveSideways(fSpeed);
+	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+		m_pCamera->MoveSideways(-fSpeed);
+
+	//after forward is calculated, put it in position
+	m_pCamera->forwardVectorProcessing();
 #pragma endregion
 }
 //Joystick
