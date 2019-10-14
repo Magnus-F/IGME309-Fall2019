@@ -16,8 +16,10 @@ class MyCamera
 	vector3 m_v3Target = vector3(0.0f, 0.0f, 0.0f); //What I'm looking at
 	vector3 m_v3Above = vector3(0.0f, 1.0f, 0.0f); //What is above the camera
 
-	//forward vector will be used to calculate position
-	vector3 forwardVector = vector3(0.0f, 0.0f, 0.0f);
+	//position vector will be used to calculate position
+	vector3 positionVector = vector3(0.0f, 0.0f, 0.0f);
+	//forward vector will be used to calculate rotation
+	vector3 forwardVector = vector3(0.0f, 0.0f, 1.0f);
 
 	bool m_bPerspective = true; //perspective view? False is Orthographic
 
@@ -242,6 +244,11 @@ public:
 	ARGUMENTS: none
 	*/
 	void forwardVectorProcessing();
+	/*
+	USAGE: adds forward vector to camera position
+	ARGUMENTS: none
+	*/
+	void cameraRotation(float rotateX, float rotateY);
 };
 
 } //namespace Simplex
