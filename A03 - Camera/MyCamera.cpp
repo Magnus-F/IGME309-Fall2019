@@ -17,16 +17,6 @@ void Simplex::MyCamera::SetVerticalPlanes(vector2 a_v2Vertical) { m_v2Vertical =
 matrix4 Simplex::MyCamera::GetProjectionMatrix(void) { return m_m4Projection; }
 matrix4 Simplex::MyCamera::GetViewMatrix(void) { CalculateViewMatrix(); return m_m4View; }
 
-//code for this equation is here: http://www.cplusplus.com/forum/general/243435/
-vector3 Simplex::MyCamera::Normalize(vector3 vec)
-{
-	float magnitude = sqrt(pow(vec.x, 2) + pow(vec.y, 2) + pow(vec.z, 2));
-	vec.x /= magnitude;
-	vec.y /= magnitude;
-	vec.z /= magnitude;
-	return vec;
-}
-
 Simplex::MyCamera::MyCamera()
 {
 	Init(); //Init the object with default values
@@ -163,12 +153,12 @@ void Simplex::MyCamera::CalculateProjectionMatrix(void)
 void MyCamera::MoveForward(float a_fDistance)
 {
 	//The following is just an example and does not take in account the forward vector (AKA view vector)
-	//m_v3Position.z += -a_fDistance;
-	//m_v3Target.z += -a_fDistance;
-	//m_v3Above.z += -a_fDistance;
+	m_v3Position += -a_fDistance *forwardVector;
+	m_v3Target += -a_fDistance * forwardVector;
+	m_v3Above += -a_fDistance * forwardVector;
 	//see if this works
 	//multiply forward vector by vector including afdistance
-	positionVector += vector3(0.0f, 0.0f, -a_fDistance);
+	//positionVector += vector3(0.0f, 0.0f, -a_fDistance);
 }
 //for now this is just a copy of the above moveForward. Don't think this will take into account the rotation, but we'll figure that out once the rotation is in
 void MyCamera::MoveVertical(float a_fDistance){
@@ -177,33 +167,40 @@ void MyCamera::MoveVertical(float a_fDistance){
 	m_v3Above.y += -a_fDistance;
 }
 void MyCamera::MoveSideways(float a_fDistance){
-	//m_v3Position.x += -a_fDistance;
-	//m_v3Target.x += -a_fDistance;
-	//m_v3Above.x += -a_fDistance;
+	m_v3Position += -a_fDistance * cameraRight;
+	m_v3Target += -a_fDistance * cameraRight;
+	m_v3Above += -a_fDistance * cameraRight;
 	//multiply forward vector by vector including afdistance
-	positionVector += vector3(-a_fDistance, 0.0f, 0.0f);
+	//positionVector += vector3(-a_fDistance, 0.0f, 0.0f);
 }
 
-//attempted to account for a forward vector here, it gets added to all the other move vectors
-void Simplex::MyCamera::forwardVectorProcessing()
-{
-	//normalize the vector
-	//positionVector = Normalize(positionVector);
-	//set everything accordingly
-	m_v3Position += positionVector;
-	m_v3Above += positionVector;
-	m_v3Target += positionVector;
-	//reset vector
-	positionVector = vector3(0, 0, 0);
-}
-
-void Simplex::MyCamera::cameraRotation(float rotateX, float rotateY)
+void Simplex::MyCamera::rotationHorizontal(float rotateY)
 {
 	//add x and y into the forward vector
-	forwardVector += vector3(rotateX, 0, rotateY);
-	quaternion quat;
-	//normalize?
-	//forwardVector = Normalize(forwardVector);
+	//forwardVector += vector3(rotateY, 0, rotateX);
+	quaternion angleRotation = glm::angleAxis(glm::radians(rotateY), m_v3Above-m_v3Position);
+	cameraRight = glm::cross(m_v3Above - m_v3Position, forwardVector);
+
+	forwardVector = glm::normalize(m_v3Position - m_v3Target);
+	m_v3Above = (angleRotation * (m_v3Above - m_v3Position)) + m_v3Position;
+	//(angleRotation * (m_v3Target-m_v3Position)) + m_v3Position
+
+
 	//add to target vector
-	m_v3Target = forwardVector;
+	m_v3Target = (angleRotation * (m_v3Target - m_v3Position)) + m_v3Position;
+}
+void Simplex::MyCamera::rotationVertical(float rotateX)
+{
+	//add x and y into the forward vector
+	//forwardVector += vector3(rotateY, 0, rotateX);
+	quaternion angleRotation = glm::angleAxis(glm::radians(rotateX), cameraRight);
+	cameraRight = glm::cross(m_v3Above - m_v3Position, forwardVector);
+
+	forwardVector = glm::normalize(m_v3Position - m_v3Target);
+	m_v3Above = (angleRotation * (m_v3Above - m_v3Position)) + m_v3Position;
+	//(angleRotation * (m_v3Target-m_v3Position)) + m_v3Position
+
+
+	//add to target vector
+	m_v3Target = (angleRotation * (m_v3Target - m_v3Position)) + m_v3Position;
 }

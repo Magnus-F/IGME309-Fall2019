@@ -16,10 +16,9 @@ class MyCamera
 	vector3 m_v3Target = vector3(0.0f, 0.0f, 0.0f); //What I'm looking at
 	vector3 m_v3Above = vector3(0.0f, 1.0f, 0.0f); //What is above the camera
 
-	//position vector will be used to calculate position
-	vector3 positionVector = vector3(0.0f, 0.0f, 0.0f);
-	//forward vector will be used to calculate rotation
+	//forward vector for camera forward, cameraRight for right vector of camera
 	vector3 forwardVector = vector3(0.0f, 0.0f, 1.0f);
+	vector3 cameraRight = vector3(1.0f, 0, 0);
 
 	bool m_bPerspective = true; //perspective view? False is Orthographic
 
@@ -34,8 +33,6 @@ class MyCamera
 	matrix4 m_m4View; //View matrix
 	matrix4 m_m4Projection; //Projection Matrix
 
-	//for normalizing forward vector (for getting rid of tank controls) not sure if this will be used yet
-	vector3 Normalize(vector3 vec);
 public:
 	/*
 	USAGE: Constructor
@@ -240,15 +237,15 @@ public:
 	void MoveSideways(float a_fDistance = 0.1f);
 
 	/*
-	USAGE: adds forward vector to camera position
+	USAGE: rotates horizontal
 	ARGUMENTS: none
 	*/
-	void forwardVectorProcessing();
+	void rotationHorizontal(float rotateY);
 	/*
-	USAGE: adds forward vector to camera position
+	USAGE: rotates vertical
 	ARGUMENTS: none
 	*/
-	void cameraRotation(float rotateX, float rotateY);
+	void rotationVertical(float rotateX);
 };
 
 } //namespace Simplex

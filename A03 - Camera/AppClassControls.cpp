@@ -342,6 +342,7 @@ void Application::CameraRotation(float a_fSpeed)
 	GetCursorPos(&pt);
 	MouseX = pt.x;
 	MouseY = pt.y;
+	a_fSpeed *= 5;
 
 	//Calculate the difference in view with the angle
 	float fAngleX = 0.0f;
@@ -351,25 +352,28 @@ void Application::CameraRotation(float a_fSpeed)
 	{
 		fDeltaMouse = static_cast<float>(CenterX - MouseX);
 		fAngleY += fDeltaMouse * a_fSpeed;
+		m_pCamera->rotationHorizontal(fAngleY);
 	}
 	else if (MouseX > CenterX)
 	{
 		fDeltaMouse = static_cast<float>(MouseX - CenterX);
 		fAngleY -= fDeltaMouse * a_fSpeed;
+		m_pCamera->rotationHorizontal(fAngleY);
 	}
 
 	if (MouseY < CenterY)
 	{
 		fDeltaMouse = static_cast<float>(CenterY - MouseY);
 		fAngleX -= fDeltaMouse * a_fSpeed;
+		m_pCamera->rotationVertical(fAngleX);
 	}
 	else if (MouseY > CenterY)
 	{
 		fDeltaMouse = static_cast<float>(MouseY - CenterY);
 		fAngleX += fDeltaMouse * a_fSpeed;
+		m_pCamera->rotationVertical(fAngleX);
 	}
 	//Change the Yaw and the Pitch of the camera
-	m_pCamera->cameraRotation(-fAngleX, fAngleY);
 	SetCursorPos(CenterX, CenterY);//Position the mouse in the center
 }
 //Keyboard
@@ -391,10 +395,12 @@ void Application::ProcessKeyboard(void)
 		m_pCamera->MoveForward(fSpeed);
 	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
 		m_pCamera->MoveForward(-fSpeed);
-	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
 		m_pCamera->MoveSideways(fSpeed);
 	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
 		m_pCamera->MoveSideways(-fSpeed);
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::R))
+		m_pCamera->ResetCamera();
 
 	//after forward is calculated, put it in position
 	m_pCamera->forwardVectorProcessing();
