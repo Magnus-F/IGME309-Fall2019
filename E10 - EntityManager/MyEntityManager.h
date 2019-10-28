@@ -142,6 +142,8 @@ public:
 	*/
 	void AddEntityToRenderList(String a_sUniqueID, bool a_bRigidBody = false);
 	
+	//check if list is empty or index is out of bounds
+	bool isListEmpty(uint index);
 private:
 	/*
 	Usage: constructor
