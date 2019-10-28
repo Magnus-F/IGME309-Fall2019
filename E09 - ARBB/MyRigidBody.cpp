@@ -85,8 +85,65 @@ void MyRigidBody::SetModelMatrix(matrix4 a_m4ModelMatrix)
 	m_m4ToWorld = a_m4ModelMatrix;
 	
 	//your code goes here---------------------
-	m_v3MinG = m_v3MinL;
-	m_v3MaxG = m_v3MaxL;
+	//Get local bounding box vertices
+	/*
+	X, Y, Z
+	m_v3MinL and m_v3MaxL
+	Min, Min, Min glm::vec3(m_v3MinL.x, m_v3MinL.y, m_v3MinL.z)
+	Min, Min, Max
+	Min, Max, Min
+	Min, Max, Max
+	Max, Min, Min
+	Max, Min, Max
+	Max, Max, Min
+	Max, Max, Max glm::vec3(m_v3MaxL.x, m_v3MaxL.y, m_v3MaxL.z)
+	*/
+	//make a vertex array to make things easier on me
+	std::vector<glm::vec3> calculationVectors = {
+		glm::vec3(m_v3MinL.x, m_v3MinL.y, m_v3MinL.z),
+		glm::vec3(m_v3MinL.x, m_v3MinL.y, m_v3MaxL.z),
+		glm::vec3(m_v3MinL.x, m_v3MaxL.y, m_v3MinL.z),
+		glm::vec3(m_v3MinL.x, m_v3MaxL.y, m_v3MaxL.z),
+		glm::vec3(m_v3MaxL.x, m_v3MinL.y, m_v3MinL.z),
+		glm::vec3(m_v3MaxL.x, m_v3MinL.y, m_v3MaxL.z),
+		glm::vec3(m_v3MaxL.x, m_v3MaxL.y, m_v3MinL.z),
+		glm::vec3(m_v3MaxL.x, m_v3MaxL.y, m_v3MaxL.z)
+	};
+
+	//set min and max to be first in vector in order to not screw up numbers
+	//if the numbers are already less than, as they would be at 0,0,0, then it wouldn't change
+	calculationVectors[0] = glm::vec3(m_m4ToWorld * glm::vec4(calculationVectors[0], 1));
+	m_v3MinG = calculationVectors[0];
+	m_v3MaxG = calculationVectors[0];
+
+	for (int i = 1; i < calculationVectors.size(); i++)
+	{
+		//Rotate them in world space (multiply by world matrix)
+		calculationVectors[i] = glm::vec3(m_m4ToWorld * glm::vec4(calculationVectors[i], 1));
+		//Go through each rotated point and find min/max values for each axis; set them to m_v3MinG and m_v3MaxG
+
+
+		//for min
+		if (calculationVectors[i].x < m_v3MinG.x)
+			m_v3MinG.x = calculationVectors[i].x;
+		if (calculationVectors[i].y < m_v3MinG.y)
+			m_v3MinG.y = calculationVectors[i].y;
+		if (calculationVectors[i].z < m_v3MinG.z)
+			m_v3MinG.z = calculationVectors[i].z;
+
+		//for max
+		if (calculationVectors[i].x > m_v3MaxG.x)
+			m_v3MaxG.x = calculationVectors[i].x;
+		if (calculationVectors[i].y > m_v3MaxG.y)
+			m_v3MaxG.y = calculationVectors[i].y;
+		if (calculationVectors[i].z > m_v3MaxG.z)
+			m_v3MaxG.z = calculationVectors[i].z;
+	}
+	//glm::vec3 rotatedPoint = glm::vec3(m_m4ToWorld * glm::vec4(localVertex, 1));
+
+
+	std::cout << "max" << m_v3MaxG.x << m_v3MaxG.y << m_v3MaxG.z << std::endl;
+	std::cout << "min" << m_v3MinG.x << m_v3MinG.y << m_v3MinG.z << std::endl;
 	//----------------------------------------
 
 	//we calculate the distance between min and max vectors
