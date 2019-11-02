@@ -24,6 +24,7 @@ void MyRigidBody::Init(void)
 	m_v3ARBBSize = ZERO_V3;
 
 	m_m4ToWorld = IDENTITY_M4;
+
 }
 void MyRigidBody::Swap(MyRigidBody& a_pOther)
 {
@@ -86,7 +87,7 @@ void MyRigidBody::SetModelMatrix(matrix4 a_m4ModelMatrix)
 	m_m4ToWorld = a_m4ModelMatrix;
 
 	//Calculate the 8 corners of the cube
-	vector3 v3Corner[8];
+	
 	//Back square
 	v3Corner[0] = m_v3MinL;
 	v3Corner[1] = vector3(m_v3MaxL.x, m_v3MinL.y, m_v3MinL.z);
@@ -286,7 +287,99 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 	Simplex that might help you [eSATResults] feel free to use it.
 	(eSATResults::SAT_NONE has a value of 0)
 	*/
+	//get vector for all the axises required
 
-	//there is no axis test that separates this two objects
-	return eSATResults::SAT_NONE;
+	std::vector<vector3> axes = {
+		glm::normalize(v3Corner[2] - v3Corner[0]),
+		glm::normalize(v3Corner[1] - v3Corner[0]),
+		glm::normalize(v3Corner[4] - v3Corner[0]),
+		glm::normalize(a_pOther->v3Corner[2] - a_pOther->v3Corner[0]),
+		glm::normalize(a_pOther->v3Corner[1] - a_pOther->v3Corner[0]),
+		glm::normalize(a_pOther->v3Corner[4] - a_pOther->v3Corner[0]),
+	};
+
+	//get numbers for checkings
+	float minCollision = 1000;
+	float maxCollision = -1000;
+	float minCollisionOther = 1000;
+	float maxCollisionOther = -1000;
+
+	//loop through the axises and check the numbers for collisions
+	for (int i = 0; i < axes.size(); i++)
+	{
+		for (int j = 0; j < 8; j++)
+		{
+			//first check for yourself
+			float tempNum = glm::dot(axes[i], v3Corner[j]);
+			if (tempNum <= minCollision)
+				minCollision = tempNum;
+			if (tempNum >= maxCollision)
+				maxCollision = tempNum;
+
+			//then check for others
+			float tempNumOther = glm::dot(axes[i], a_pOther->v3Corner[j]);
+			if (tempNumOther <= minCollisionOther)
+				minCollisionOther = tempNumOther;
+			if (tempNumOther >= maxCollisionOther)
+				maxCollisionOther = tempNumOther;
+		}
+		//check if colliding
+		if (minCollision >= maxCollisionOther || minCollisionOther >= maxCollision)
+		{
+			//std::cout << i << " " << minCollision << maxCollisionOther << std::endl;
+			//if this is true, its colliding
+			return eSATResults::SAT_NONE; //not planning on extra credit so this is all that's needed
+		}
+	}
+
+	//create cross products for all the axises
+	std::vector<vector3> crossProduct = {
+		glm::cross(axes[0], axes[3]),
+		glm::cross(axes[0], axes[4]),
+		glm::cross(axes[0], axes[5]),
+		glm::cross(axes[1], axes[3]),
+		glm::cross(axes[1], axes[4]),
+		glm::cross(axes[1], axes[5]),
+		glm::cross(axes[2], axes[3]),
+		glm::cross(axes[2], axes[4]),
+		glm::cross(axes[2], axes[5]),
+	};
+
+	//reset checking numbers
+	minCollision = 1000;
+	maxCollision = -1000;
+	minCollisionOther = 1000;
+	maxCollisionOther = -1000;
+
+	//loop through them too
+	for (int i = 0; i < crossProduct.size(); i++)
+	{
+		for (int j = 0; j < 8; j++)
+		{
+			//first check for yourself
+			float tempNum = glm::dot(crossProduct[i], v3Corner[j]);
+			if (tempNum <= minCollision)
+				minCollision = tempNum;
+			if (tempNum >= maxCollision)
+				maxCollision = tempNum;
+
+			//then check for others
+			float tempNumOther = glm::dot(crossProduct[i], a_pOther->v3Corner[j]);
+			if (tempNumOther <= minCollisionOther)
+				minCollisionOther = tempNumOther;
+			if (tempNumOther >= maxCollisionOther)
+				maxCollisionOther = tempNumOther;
+		}
+		//check if colliding
+		if (minCollision >= maxCollisionOther || maxCollision >= minCollisionOther)
+		{
+			//std::cout << " crossproduct " << i << " " << minCollision << maxCollisionOther << std::endl;
+			//if this is true, its colliding
+			return eSATResults::SAT_NONE; //not planning on extra credit so this is all that's needed
+		}
+	}
+
+	//std::cout << " minimum Other " << minCollisionOther << " max Other " << maxCollisionOther << std::endl;
+	//the two objects are separate
+	return eSATResults::SAT_AX;
 }
