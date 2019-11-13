@@ -11,6 +11,7 @@ Date: 2017/06
 #include "imgui\ImGuiObject.h"
 
 #include "MyEntityManager.h"
+#include "OctLeaf.h"
 
 namespace Simplex
 {
@@ -21,6 +22,8 @@ class Application
 	uint m_uOctantID = -1; //Index of Octant to display
 	uint m_uObjects = 0; //Number of objects in the scene
 	uint m_uOctantLevels = 0; //Number of levels in the octree
+	OctLeaf* tree;
+	std::vector<vector3> locale;
 private:
 	String m_sProgrammer = "Myles Weider - mjw7119@rit.edu"; //programmer
 

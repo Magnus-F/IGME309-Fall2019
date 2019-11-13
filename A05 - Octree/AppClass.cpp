@@ -18,6 +18,7 @@ void Application::InitVariables(void)
 	int nSquare = static_cast<int>(std::sqrt(uInstances));
 	m_uObjects = nSquare * nSquare;
 	uint uIndex = -1;
+	std::vector<Simplex::MyRigidBody*> cubeTemp; //create temporary index for use with oct tree
 	for (int i = 0; i < nSquare; i++)
 	{
 		for (int j = 0; j < nSquare; j++)
@@ -27,9 +28,27 @@ void Application::InitVariables(void)
 			vector3 v3Position = vector3(glm::sphericalRand(34.0f));
 			matrix4 m4Position = glm::translate(v3Position);
 			m_pEntityMngr->SetModelMatrix(m4Position);
+			cubeTemp.push_back(m_pEntityMngr->GetRigidBody(uIndex)); //get the rigid body for the list
 		}
 	}
 	m_uOctantLevels = 1;
+
+	//create location
+	locale = {
+		//top square
+		vector3(-34,34,34),
+		vector3(-34,-34,34),
+		vector3(34,-34,34),
+		vector3(34,34,34),
+		//back square
+		vector3(-34,34,-34),
+		vector3(-34,-34,-34),
+		vector3(34,-34,-34),
+		vector3(34,34,-34),
+	};
+
+	//instanciate oct tree
+	tree = new OctLeaf(locale, cubeTemp, 5);
 	m_pEntityMngr->Update();
 }
 void Application::Update(void)
@@ -56,6 +75,12 @@ void Application::Display(void)
 
 	//display octree
 	//m_pRoot->Display();
+
+	if (m_uOctantLevels > 0)
+	{
+		tree->setVisible();
+		tree->Subdivide(m_uOctantLevels, locale);
+	}
 	
 	// draw a skybox
 	m_pMeshMngr->AddSkyboxToRenderList();
