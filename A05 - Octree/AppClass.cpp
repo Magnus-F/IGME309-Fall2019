@@ -48,7 +48,7 @@ void Application::InitVariables(void)
 	};
 
 	//instanciate oct tree
-	tree = new OctLeaf(locale, cubeTemp, 5);
+	tree = new OctLeaf(locale, cubeTemp, 3);
 	m_pEntityMngr->Update();
 }
 void Application::Update(void)
@@ -79,7 +79,7 @@ void Application::Display(void)
 	if (m_uOctantLevels > 0)
 	{
 		tree->setVisible();
-		tree->Subdivide(m_uOctantLevels, locale);
+		tree->Subdivide(1, locale);
 	}
 	
 	// draw a skybox
