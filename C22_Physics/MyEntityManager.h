@@ -286,6 +286,8 @@ public:
 	-	String a_sUniqueID -> ID of the MyEntity
 	OUTPUT: ---
 	*/
+	vector3 GetPosition(uint a_uIndex = -1);
+	vector3 GetPosition(String a_sUniqueID);
 	void SetMass(float a_fMass, String a_sUniqueID);
 	/*
 	USAGE: Sets the mass of the specified entity
@@ -295,6 +297,10 @@ public:
 	OUTPUT: ---
 	*/
 	void SetMass(float a_v3Position, uint a_uIndex = -1);
+	//sets the velocity of a specific object
+	void SetVelocity(vector3 velocity, String a_sUniqueID);
+	//sets velocity of a specific object by its index if it exists
+	void SetVelocity(vector3 velocity, uint a_uIndex = -1);
 	/*
 	USAGE: Sets the using physics solver flag for the specified object
 	ARGUMENTS:

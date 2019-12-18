@@ -19,8 +19,8 @@ public:
 protected:
 	MeshManager* m_pMeshMngr = nullptr; //for displaying the Rigid Body
 
-	bool m_bVisibleBS = false; //Visibility of bounding sphere
-	bool m_bVisibleOBB = true; //Visibility of Oriented bounding box
+	bool m_bVisibleBS = true; //Visibility of bounding sphere
+	bool m_bVisibleOBB = false; //Visibility of Oriented bounding box
 	bool m_bVisibleARBB = true; //Visibility of axis (Re)aligned bounding box
 
 	float m_fRadius = 0.0f; //Radius

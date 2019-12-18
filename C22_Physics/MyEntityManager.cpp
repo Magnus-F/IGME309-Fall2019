@@ -470,6 +470,28 @@ void Simplex::MyEntityManager::SetPosition(vector3 a_v3Position, uint a_uIndex)
 
 	return;
 }
+vector3 Simplex::MyEntityManager::GetPosition(uint a_uIndex)
+{
+	//if the list is empty return
+	if (m_uEntityCount == 0)
+		return vector3(0,0,0);
+
+	//if the index is larger than the number of entries we are asking for the last one
+	if (a_uIndex >= m_uEntityCount)
+		a_uIndex = m_uEntityCount - 1;
+
+	return m_mEntityArray[a_uIndex]->GetPosition();
+}
+vector3 Simplex::MyEntityManager::GetPosition(String a_sUniqueID)
+{	//Get the entity
+	MyEntity* pTemp = MyEntity::GetEntity(a_sUniqueID);
+	//if the entity does not exists return
+	if (pTemp)
+	{
+		return pTemp->GetPosition();
+	}
+	return vector3(0,0,0); //else return nothing that has to be something otherwise I'll get yelled at
+}
 void Simplex::MyEntityManager::SetMass(float a_fMass, String a_sUniqueID)
 {
 	//Get the entity
@@ -492,6 +514,31 @@ void Simplex::MyEntityManager::SetMass(float a_fMass, uint a_uIndex)
 		a_uIndex = m_uEntityCount - 1;
 
 	m_mEntityArray[a_uIndex]->SetMass(a_fMass);
+
+	return;
+}
+void Simplex::MyEntityManager::SetVelocity(vector3 velocity, String a_sUniqueID)
+{
+	//Get the entity
+	MyEntity* pTemp = MyEntity::GetEntity(a_sUniqueID);
+	//if the entity does not exists return
+	if (pTemp)
+	{
+		pTemp->SetVelocity(velocity);
+	}
+	return;
+}
+void Simplex::MyEntityManager::SetVelocity(vector3 velocity, uint a_uIndex)
+{
+	//if the list is empty return
+	if (m_uEntityCount == 0)
+		return;
+
+	//if the index is larger than the number of entries we are asking for the last one
+	if (a_uIndex >= m_uEntityCount)
+		a_uIndex = m_uEntityCount - 1;
+
+	m_mEntityArray[a_uIndex]->SetVelocity(velocity);
 
 	return;
 }
