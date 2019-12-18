@@ -39,10 +39,19 @@ void Application::InitVariables(void)
 		m_pEntityMngr->SetModelMatrix(m4Position * glm::scale(vector3(-2.0f)));
 		m_pEntityMngr->UsePhysicsSolver();
 		cubeTemp.push_back(m_pEntityMngr->GetRigidBody()); //get the rigid body for the list
-		//m_pEntityMngr->SetMass(2);
+		//randomize masses
+		m_pEntityMngr->SetMass(rand()%3);
 		//m_pEntityMngr->SetMass(i+1);
 	}
-
+	for (int i = 0; i < cubeTemp.size(); i++)
+	{
+		//randomly generate a vector for velocity
+		float x = (rand() % 20 - 10.0f) / 10.0f;
+		float y = (rand() % 20 - 10.0f) / 10.0f;
+		float z = (rand() % 20 - 10.0f) / 10.0f;
+		vel.push_back(vector3(x, y, z));
+		std::cout << vel[i].x << vel[i].y << vel[i].z << std::endl;
+	}
 }
 void Application::Update(void)
 {
@@ -60,41 +69,25 @@ void Application::Update(void)
 
 	//Set the model matrix for the main object
 	//m_pEntityMngr->SetModelMatrix(m_m4Steve, "Steve");
-	vector3 vel;
-	float x;
-	float y;
-	float z;
-	for (int i = 0; i < 100; i++)
-	{		
-		//randomly generate a vector for velocity
-		x = (rand() % 20) / 10;
-		y = (rand() % 20) / 10;
-		z = (rand() % 20) / 10;
-		vel = vector3(x, y, z);
-		m_pEntityMngr->SetVelocity(vel, "particle_" + std::to_string(i));
-	}
+
 	for (int i = 0; i < 100; i++)
 	{
+		m_pEntityMngr->ApplyForce(vel[i], "particle_" + std::to_string(i));
 		//check for various collisions/locations
 		//if the sphere hits the location on or outside the bounding box, bounce off(i.e go in other direction)
 		for (int j = 0; j < locale.size(); j++) //to check if they had crossed the bounding box (checking x y and z of each separately because I con't think of another way to)
 		{
-			if (m_pEntityMngr->GetPosition("particle_" + std::to_string(i)).x >= locale[j].x)
+			vector3 tempD = m_pEntityMngr->GetPosition("particle_" + std::to_string(i));
+			//check if bounding box had been hit
+			float magLocale = (locale[j].x * locale[j].x) + (locale[j].y * locale[j].y) + (locale[j].z * locale[j].z);
+			float magDistance = (tempD.x * tempD.x) + (tempD.y * tempD.y) + (tempD.z * tempD.z);
+			if (magLocale<magDistance)
 			{
-				if (m_pEntityMngr->GetPosition("particle_" + std::to_string(i)).y >= locale[j].y)
-				{
-					if (m_pEntityMngr->GetPosition("particle_" + std::to_string(i)).z >= locale[j].z)
-					{
-						vel = vector3(-x,-y,-z);
-						m_pEntityMngr->SetVelocity(vel, "particle_" + std::to_string(i));
-					}
+				vel[i] *= -1;
+				m_pEntityMngr->SetVelocity(vel[i], "particle_" + std::to_string(i));
+			}
+			//if true, then bounce off of it
 
-				}
-			}
-			else
-			{
-				vector3 vel = vector3(x, y, z);
-			}
 		}
 	}
 	//Add objects to render list
@@ -116,7 +109,8 @@ void Application::Display(void)
 	// draw a skybox
 	m_pMeshMngr->AddSkyboxToRenderList();
 
-	m_pMeshMngr->GenerateWireCube(size);
+	matrix4 temp = matrix4(size);
+	m_pMeshMngr->AddWireCubeToRenderList(temp*100,vector3(1,1,1));
 
 	//render list call
 	m_uRenderCallCount = m_pMeshMngr->Render();

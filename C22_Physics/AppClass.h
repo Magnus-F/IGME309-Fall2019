@@ -27,6 +27,7 @@ class Application
 	OctLeaf* tree;
 	float size = 100;//size of bounding box
 	std::vector<vector3> locale;
+	std::vector<vector3> vel; //randomized starting velocity of each
 private:
 	String m_sProgrammer = "Myles Weider - mjw7119@rit.edu"; //programmer
 
